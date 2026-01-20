@@ -34,6 +34,7 @@ export class CollectionMerger {
 
     private getMergedCollectionInner(collectionsMap: CollectionMapPlus): GameInfo[] {
         const cache: GameIdCache = {};
+        const sharedUserRatingSet = new Set<number>();
         const userNames = Object.keys(collectionsMap);
         userNames.forEach((username) => {
             const currentCollection = collectionsMap[username];
@@ -41,9 +42,22 @@ export class CollectionMerger {
                 const alreadyKnownGame = cache[currentGame.id];
                 if (alreadyKnownGame) {
                     alreadyKnownGame.owners.push(username);
-                    alreadyKnownGame.userRating = Object.assign({}, alreadyKnownGame.userRating, currentGame.userRating);
+                    if (currentGame.userRating) {
+                        if (!alreadyKnownGame.userRating) {
+                            alreadyKnownGame.userRating = Object.assign({}, currentGame.userRating);
+                        } else {
+                            if (sharedUserRatingSet.has(currentGame.id)) {
+                                alreadyKnownGame.userRating = Object.assign({}, alreadyKnownGame.userRating);
+                                sharedUserRatingSet.delete(currentGame.id);
+                            }
+                            Object.assign(alreadyKnownGame.userRating, currentGame.userRating);
+                        }
+                    }
                 } else {
                     cache[currentGame.id] = Object.assign({}, currentGame, { owners: [username] });
+                    if (currentGame.userRating) {
+                        sharedUserRatingSet.add(currentGame.id);
+                    }
                 }
             });
         });
