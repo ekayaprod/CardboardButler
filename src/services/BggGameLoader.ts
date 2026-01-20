@@ -118,14 +118,12 @@ export default class BggGameLoader {
         });
     }
 
-    private chunk<T>(input: T[], chunkSize: number): T[][] {
-        const chunked_arr: T[][] = [];
-        const copied = [...input];
-        const numOfChild = Math.ceil(copied.length / chunkSize);
-        for (let i = 0; i < numOfChild; i++) {
-            chunked_arr.push(copied.splice(0, chunkSize));
+    public chunk<T>(input: T[], chunkSize: number): T[][] {
+        const result: T[][] = [];
+        for (let i = 0; i < input.length; i += chunkSize) {
+            result.push(input.slice(i, i + chunkSize));
         }
-        return chunked_arr;
+        return result;
     }
 
 
