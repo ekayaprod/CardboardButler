@@ -41,9 +41,18 @@ export class CollectionMerger {
                 const alreadyKnownGame = cache[currentGame.id];
                 if (alreadyKnownGame) {
                     alreadyKnownGame.owners.push(username);
-                    alreadyKnownGame.userRating = Object.assign({}, alreadyKnownGame.userRating, currentGame.userRating);
+                    if (currentGame.userRating) {
+                        if (!alreadyKnownGame.userRating) {
+                            alreadyKnownGame.userRating = {};
+                        }
+                        Object.assign(alreadyKnownGame.userRating, currentGame.userRating);
+                    }
                 } else {
-                    cache[currentGame.id] = Object.assign({}, currentGame, { owners: [username] });
+                    const newGame = Object.assign({}, currentGame, { owners: [username] });
+                    if (newGame.userRating) {
+                        newGame.userRating = Object.assign({}, newGame.userRating);
+                    }
+                    cache[currentGame.id] = newGame;
                 }
             });
         });
