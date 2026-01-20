@@ -1,5 +1,5 @@
 import React = require("react");
-import { Icon, Dimmer, Container, Item, Button, Segment, Card, Header, Divider } from "semantic-ui-react";
+import { Icon, Dimmer, Container, Item, Button, Segment, Header } from "semantic-ui-react";
 import { GameInfoPlus, } from "../types";
 import GameListItem from "./GameListItem";
 

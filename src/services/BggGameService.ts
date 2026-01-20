@@ -123,7 +123,7 @@ class BggGameService {
 
     }
 
-    async getPlaysPage(username: string, pageNumber: number = 1) {
+    async getPlaysPage(username: string, pageNumber = 1) {
         const xml = await this.fetchPlaysXml(username, pageNumber);
         if (typeof xml === "string") {
             const jsObj = convert.xml2js(xml) as convert.Element;

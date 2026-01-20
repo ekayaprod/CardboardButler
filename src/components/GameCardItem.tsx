@@ -1,6 +1,6 @@
 import * as React from "react";
 import { GameInfoPlus } from "../types";
-import { Card, Icon, Image } from "semantic-ui-react";
+import { Card, Image } from "semantic-ui-react";
 import DescriptionGenerator from "../services/GameDescriptionGenerator";
 
 type Size = "mini" | "tiny" | "small" | "medium" | "large" | "big" | "huge" | "massive";

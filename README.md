@@ -15,8 +15,10 @@ The project is structured as follows to help navigation for developers and LLMs:
 - **`src/`**: The source code for the React application.
   - **`components/`**: React components for the UI (e.g., `App.tsx`, `CollectionPage.tsx`).
   - **`services/`**: Business logic and data services (e.g., BGG API interaction, game sorting/filtering).
-  - **`models/`**: TypeScript interfaces and types.
+  - **`styles/`**: Global styles (e.g., `App.css`).
+  - **`types/`**: TypeScript interfaces and type definitions.
   - **`assets/`**: Static assets like images.
+- **`public/`**: Static files (e.g., `index.html`).
 - **`scripts/`**: Utility scripts, primarily for the production server.
 - **`tests/`**: Unit and integration tests.
 - **`dist/`**: The output directory for the production build (generated).

@@ -20,7 +20,7 @@ const app = express();
 // Use PORT from environment variables or default to 3000
 const PORT = process.env.PORT || 3000;
 // Directory containing the production build files
-const SOURCE_DIR = path.join(__dirname, 'dist');
+const SOURCE_DIR = path.join(__dirname, '../dist');
 
 // Serve static files from the source directory
 app.use(express.static(SOURCE_DIR));

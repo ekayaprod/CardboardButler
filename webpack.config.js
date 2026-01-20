@@ -65,7 +65,7 @@ const commonConfig = {
     // Plugin for awesome-typescript-loader to perform type checking in a separate process
     new CheckerPlugin(),
     // Generates an HTML file from the template and injects the bundle
-    new HtmlWebpackPlugin({ template: 'index.html', }),
+    new HtmlWebpackPlugin({ template: '../public/index.html', }),
   ],
   performance: {
     hints: false, // Disable performance hints (e.g. asset size warnings)

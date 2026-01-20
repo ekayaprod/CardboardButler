@@ -1,17 +1,15 @@
-import GameListItem from "./GameListItem";
 import FilterBar from "./FilterBar";
-import { Item, Container, Header, Card, Icon, Divider, List } from "semantic-ui-react";
+import { Container, Header, Icon, Divider, List } from "semantic-ui-react";
 
 import * as React from "react";
 import { FilterAndSortOptions } from "../types";
 import { GamesFilterAndSorter } from "../services/GamesFilterAndSorter";
 import { GameInfoPlus } from "../types";
 import PickAGameForMe from "./PickAGame";
-import GameCardItem from "./GameCardItem";
 import CollectionList from "./CollectionList";
 import CollectionGrid from "./CollectionGrid";
 
-class NoGamesFound extends React.PureComponent<{}> {
+class NoGamesFound extends React.PureComponent<Record<string, never>> {
 
     render() {
         return (
@@ -25,7 +23,7 @@ class NoGamesFound extends React.PureComponent<{}> {
     }
 }
 
-class Footer extends React.PureComponent<{}> {
+class Footer extends React.PureComponent<Record<string, never>> {
 
     render() {
         return (
