@@ -10,7 +10,7 @@ export interface Sorter {
 
 export class BggRatingSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.averageRatingSorter)];
+        return collection.sort(this.averageRatingSorter);
     }
     private averageRatingSorter(a: GameInfo, b: GameInfo): number {
         return b.averagerating - a.averagerating;
@@ -19,7 +19,7 @@ export class BggRatingSorter implements Sorter {
 
 export class HeavySorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.weightHeavySort)];
+        return collection.sort(this.weightHeavySort);
     }
     private weightHeavySort(a: GameInfoPlus, b: GameInfoPlus): number {
         const aValue = "weight" in a ? a.weight : undefined;
@@ -30,7 +30,7 @@ export class HeavySorter implements Sorter {
 
 export class LightSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.weightLightSort)];
+        return collection.sort(this.weightLightSort);
     }
     private weightLightSort(a: GameInfoPlus, b: GameInfoPlus): number {
         const aValue = "weight" in a ? a.weight : undefined;
@@ -55,7 +55,10 @@ export class MultiSorter implements Sorter {
 
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
         const mutableCollection = [...collection];
-        const sortedCollections = this.innerSorters.map((sorter) => sorter.sort(mutableCollection));
+        const sortedCollections = this.innerSorters.map((sorter) => {
+            sorter.sort(mutableCollection);
+            return [...mutableCollection];
+        });
         const indexMaps = sortedCollections.map((collection) => collection.reduce((prev, cur, index) => {
             prev[cur.id] = [index];
             return prev;
@@ -83,7 +86,7 @@ export class MultiSorter implements Sorter {
 
 export class NameSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.nameSorter)];
+        return collection.sort(this.nameSorter);
     }
     private nameSorter(a: GameInfo, b: GameInfo): number {
         return a.name.localeCompare(b.name);
@@ -93,7 +96,7 @@ export class NameSorter implements Sorter {
 
 export class OldSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.oldYearSorter)];
+        return collection.sort(this.oldYearSorter);
     }
     private oldYearSorter(a: GameInfo, b: GameInfo): number {
         return (a.yearPublished || Infinity) - (b.yearPublished || Infinity);
@@ -106,7 +109,7 @@ function getSafePlayCount(a: GameInfoPlus) {
 
 export class PlayedALotSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.recentlySoter)];
+        return collection.sort(this.recentlySoter);
     }
     private recentlySoter(a: GameInfoPlus, b: GameInfoPlus): number {
         return getSafePlayCount(b) - getSafePlayCount(a);
@@ -120,7 +123,7 @@ function getSafeLastPlayed(a: GameInfoPlus) {
 
 export class PlayedLongAgoSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.recentlySoter)];
+        return collection.sort(this.recentlySoter);
     }
     private recentlySoter(a: GameInfoPlus, b: GameInfoPlus): number {
         return getSafeLastPlayed(a) - getSafeLastPlayed(b);
@@ -130,7 +133,7 @@ export class PlayedLongAgoSorter implements Sorter {
 
 export class PlayedNotALotSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.recentlySoter)];
+        return collection.sort(this.recentlySoter);
     }
     private recentlySoter(a: GameInfoPlus, b: GameInfoPlus): number {
         return getSafePlayCount(a) - getSafePlayCount(b);
@@ -140,7 +143,7 @@ export class PlayedNotALotSorter implements Sorter {
 
 export class RecentlyPlayedSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.recentlySoter)];
+        return collection.sort(this.recentlySoter);
     }
     private recentlySoter(a: GameInfoPlus, b: GameInfoPlus): number {
         return getSafeLastPlayed(b) - getSafeLastPlayed(a);
@@ -156,11 +159,10 @@ export class SuggestedPlayersSorter implements Sorter {
     }
 
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        const immutableCollection = [...collection];
         if (this.playerCount !== undefined) {
-            return immutableCollection.sort(this.getSuggestedComparatorComparator(this.playerCount));
+            return collection.sort(this.getSuggestedComparatorComparator(this.playerCount));
         }
-        return immutableCollection;
+        return collection;
 
     }
     private getSuggestedComparatorComparator(playerCount: number) {
@@ -191,7 +193,7 @@ export class UserRatingSorter implements Sorter {
     }
 
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.userRatingSorter)];
+        return collection.sort(this.userRatingSorter);
     }
 
     private userRatingSorter(a: GameInfo, b: GameInfo): number {
@@ -218,7 +220,7 @@ export class UserRatingSorter implements Sorter {
 
 export class YoungSorter implements Sorter {
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return [...collection.sort(this.newYearSorter)];
+        return collection.sort(this.newYearSorter);
     }
     private newYearSorter(a: GameInfo, b: GameInfo): number {
         return (b.yearPublished || -100000) - (a.yearPublished || -10000);
@@ -266,7 +268,7 @@ export class GameSorter {
 
     private sortCollectionInner(collection: GameInfoPlus[], sortOption: (SortOption | SortOption[])): GameInfoPlus[] {
         const sorter = getSorter(sortOption);
-        return sorter.sort([...collection]);
+        return sorter.sort(collection);
     }
 
 }
