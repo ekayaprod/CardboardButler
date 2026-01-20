@@ -1,19 +1,10 @@
 import { GameInfoPlus } from "../models/GameInfo";
 import { SortOption } from "../models/FilterOptions";
-import { UserRatingSorter } from "./sorters/UserRatingSorter";
-import { Sorter } from "./sorters/Sorter";
-import { YoungSorter } from "./sorters/YoungSorter";
-import { OldSorter } from "./sorters/OldSorter";
-import { HeavySorter } from "./sorters/HeavySorter";
-import { LightSorter } from "./sorters/LightSorter";
-import { BggRatingSorter } from "./sorters/BggRatingSorter";
-import { NameSorter } from "./sorters/NameSorter";
-import { SuggestedPlayersSorter } from "./sorters/SuggestedPlayersSorter";
-import { MultiSorter } from "./sorters/MultiSorter";
-import { RecentlyPlayedSorter } from "./sorters/RecentlyPlayedSorter";
-import { PlayedLongAgoSorter } from "./sorters/PlayedLongAgoSorter";
-import { PlayedALotSorter } from "./sorters/PlayedALotSorter";
-import { PlayedNotALotSorter } from "./sorters/PlayedNotALotSorter";
+import {
+    UserRatingSorter, Sorter, YoungSorter, OldSorter, HeavySorter, LightSorter,
+    BggRatingSorter, NameSorter, SuggestedPlayersSorter, MultiSorter,
+    RecentlyPlayedSorter, PlayedLongAgoSorter, PlayedALotSorter, PlayedNotALotSorter
+} from "./GameSorters";
 const memoize = require("fast-memoize");
 
 const sortMap = {
