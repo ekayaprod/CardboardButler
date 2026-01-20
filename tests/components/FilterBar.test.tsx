@@ -1,9 +1,9 @@
 import * as React from "react";
-import { GameInfo } from "../../src/models/GameInfo";
+import { GameInfo } from "../../src/types";
 import { render, fireEvent, waitForElement, getByTestId, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import FilterBar from "../../src/components/FilterBar";
-import { FilterAndSortOptions } from "../../src/models/FilterOptions";
+import { FilterAndSortOptions } from "../../src/types";
 
 describe("Filter bar", () => {
 

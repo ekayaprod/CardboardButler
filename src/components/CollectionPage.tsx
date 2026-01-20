@@ -1,19 +1,60 @@
 import GameListItem from "./GameListItem";
 import FilterBar from "./FilterBar";
-import { Item, Container, Header, Card, Icon, Divider } from "semantic-ui-react";
+import { Item, Container, Header, Card, Icon, Divider, List } from "semantic-ui-react";
 
 import * as React from "react";
-import { FilterAndSortOptions } from "../models/FilterOptions";
+import { FilterAndSortOptions } from "../types";
 import { GamesFilterAndSorter } from "../services/GamesFilterAndSorter";
-import { GameInfoPlus } from "../models/GameInfo";
-import NoGamesFound from "./NoGamesFound";
+import { GameInfoPlus } from "../types";
 import PickAGameForMe from "./PickAGame";
 import GameCardItem from "./GameCardItem";
-import Footer from "./Footer";
 import CollectionList from "./CollectionList";
 import CollectionGrid from "./CollectionGrid";
 
+class NoGamesFound extends React.PureComponent<{}> {
 
+    render() {
+        return (
+            <Header as="h2" icon textAlign="center" data-testid="nogames">
+                <Icon name="frown" circular />
+                <Header.Content>
+                    <span >Sorry, I could not find any games that match what you are looking for.</span>
+                </Header.Content>
+            </Header>
+        );
+    }
+}
+
+class Footer extends React.PureComponent<{}> {
+
+    render() {
+        return (
+            <Container text className="Footer">
+                <Divider />
+                <List horizontal>
+                    <List.Item>
+                        <Header className="faded" as="h5">
+                            <a href="about.html">About Cardboard Butler </a>
+                        </Header >
+                    </List.Item>
+                    <List.Item>
+                        <Header className="faded" as="h5">
+                            <a href="https://github.com/PhilipK/CardboardButler">Github Page</a>
+                        </Header >
+                    </List.Item>
+                    <List.Item>
+                        <Header className="faded" as="h5">
+                            <a href="https://boardgamegeek.com/support">Support BGG</a>
+                        </Header >
+                    </List.Item>
+
+                </List>
+                <Divider hidden />
+
+            </Container>
+        );
+    }
+}
 
 type ViewType = "grid" | "list";
 

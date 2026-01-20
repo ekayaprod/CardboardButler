@@ -1,5 +1,5 @@
 import BggGameService, { BggRetryResult } from "./BggGameService";
-import { GameInfo, GameInfoPlus, ExtendedGameInfo, PlayInfo, GamePlayInfo } from "../models/GameInfo";
+import { GameInfo, GameInfoPlus, ExtendedGameInfo, PlayInfo, GamePlayInfo } from "../types";
 import { CollectionMap, CollectionMerger, CollectionMapPlus } from "./CollectionMerger";
 const memoize = require("fast-memoize");
 

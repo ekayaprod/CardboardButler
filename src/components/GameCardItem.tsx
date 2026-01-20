@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GameInfoPlus } from "../models/GameInfo";
+import { GameInfoPlus } from "../types";
 import { Card, Icon, Image } from "semantic-ui-react";
 import DescriptionGenerator from "../services/GameDescriptionGenerator";
 

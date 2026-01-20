@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Dropdown, Container } from "semantic-ui-react";
-import { FilterAndSortOptions, PlayTimeOption, PlayCountOption, SortOption } from "../models/FilterOptions";
+import { FilterAndSortOptions, PlayTimeOption, PlayCountOption, SortOption } from "../types";
 
 export interface Props {
 

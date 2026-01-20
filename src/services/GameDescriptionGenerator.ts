@@ -1,4 +1,4 @@
-import { GameInfo, GameInfoPlus, ExtendedGameInfo } from "../models/GameInfo";
+import { GameInfo, GameInfoPlus, ExtendedGameInfo } from "../types";
 
 
 const ratingNames = [

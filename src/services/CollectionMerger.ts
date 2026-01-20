@@ -1,4 +1,4 @@
-import { GameInfo, GameInfoPlus } from "../models/GameInfo";
+import { GameInfo, GameInfoPlus } from "../types";
 
 export interface CollectionMap {
     [username: string]: GameInfo[];

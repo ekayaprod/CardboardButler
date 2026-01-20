@@ -1,4 +1,4 @@
-import { GameInfo } from "../../src/models/GameInfo";
+import { GameInfo } from "../../src/types";
 import fetchMock = require("fetch-mock");
 import BggGameService from "../../src/services/BggGameService";
 import { readFileSync } from "fs";

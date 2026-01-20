@@ -1,7 +1,5 @@
 # Cardboard Butler
 
-![Cardboard Butler Logo](https://cardboardbutler.azureedge.net/butler.png)
-
 Cardboard Butler is an open-source web application designed to help board game enthusiasts decide which game to play from their collection. It integrates with BoardGameGeek (BGG) to fetch user collections and provides various filtering and sorting options.
 
 You can view the live version here: [Cardboard Butler](https://cardboardbutler.azureedge.net)

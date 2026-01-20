@@ -1,6 +1,6 @@
 import * as React from "react";
 import GameListItem from "./GameListItem";
-import { GameInfoPlus } from "../models/GameInfo";
+import { GameInfoPlus } from "../types";
 import { Item } from "semantic-ui-react";
 
 interface Props {

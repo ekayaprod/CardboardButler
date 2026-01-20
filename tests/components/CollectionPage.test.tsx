@@ -2,7 +2,7 @@
 import * as React from "react";
 import "@testing-library/jest-dom/extend-expect";
 import CollectionPage from "../../src/components/CollectionPage";
-import { GameInfo } from "../../src/models/GameInfo";
+import { GameInfo } from "../../src/types";
 import { render, fireEvent, waitForElement } from "@testing-library/react";
 import { getLargeCollection } from "../services/TestHelpers";
 
