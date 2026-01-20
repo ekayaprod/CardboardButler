@@ -339,10 +339,6 @@ export default class BggGameLoader {
         this.eventHandlers.push(handler);
     }
 
-    public getCurrentNames(): string[] {
-        return this.currentNames;
-    }
-
     public getLoadingInfo(): LoadingInfo[] {
         return this.loadingInfo;
     }
