@@ -198,16 +198,19 @@ export default class BggGameLoader {
     private getGamesWithPlayInfo(currentNames: string[], games: GameInfo[], playsMap: PlaysMap) {
         if (Object.keys(playsMap).length > 0) {
             const allGamesWithPlays = games.map((game) => {
-                const allPlaysOfGame = currentNames.map((name) => {
+                const allPlaysOfGame: PlayInfo[] = [];
+                currentNames.forEach((name) => {
                     const usersPlays = playsMap[name];
                     if (usersPlays) {
-                        const usersPlaysOfThisGame = usersPlays.filter((usersPlay) => usersPlay.gameId === game.id);
-                        const gameWithPlayedBy = usersPlaysOfThisGame.map((up) => Object.assign({}, up, { playedBy: name }));
-                        return gameWithPlayedBy;
+                        for (let i = 0; i < usersPlays.length; i++) {
+                            const usersPlay = usersPlays[i];
+                            if (usersPlay.gameId === game.id) {
+                                allPlaysOfGame.push(Object.assign({}, usersPlay, { playedBy: name }));
+                            }
+                        }
                     }
-                    return [];
+                });
 
-                }).reduce((prev, cur) => prev.concat(cur), []);
                 const lastPlayInMinutes = allPlaysOfGame.reduce((prev, cur) => Math.max(prev, cur.date.getTime()), 0);
                 const timePlayedInMinutes = allPlaysOfGame.reduce((prev, cur) => prev + (cur.length || 0), 0);
                 const result: GamePlayInfo = {
