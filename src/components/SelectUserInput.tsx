@@ -110,7 +110,7 @@ export default class SelectUserInput extends React.PureComponent<AppProps> {
                     )
                 }
                 <div className="field">
-                    <button data-testid="AddButton" onClick={(e) => this.onAddClick()} className="ui basic button tiny">
+                    <button data-testid="AddButton" onClick={() => this.onAddClick()} className="ui basic button tiny">
                         <i className="icon plus"></i>
                         Add a friend
                 </button>

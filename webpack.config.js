@@ -65,7 +65,7 @@ const commonConfig = {
     // Plugin for awesome-typescript-loader to perform type checking in a separate process
     new CheckerPlugin(),
     // Generates an HTML file from the template and injects the bundle
-    new HtmlWebpackPlugin({ template: 'index.html', }),
+    new HtmlWebpackPlugin({ template: '../public/index.html', }),
   ],
   performance: {
     hints: false, // Disable performance hints (e.g. asset size warnings)
@@ -105,7 +105,7 @@ const prodConfig = {
     filename: 'cardboardbutler.[hash].min.js', // Hashed filename for cache busting
     chunkFilename: '[name].[hash].min.js',
     path: resolve(__dirname, 'dist'), // Output directory
-    publicPath: '/',
+    publicPath: '',
   },
   devtool: 'source-map', // Full source maps for production debugging
   plugins: [],

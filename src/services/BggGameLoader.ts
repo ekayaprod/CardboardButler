@@ -59,10 +59,10 @@ export default class BggGameLoader {
     private useCache: boolean;
 
 
-    private concurrentRequestLimit: number = 5;
+    private concurrentRequestLimit = 5;
 
 
-    constructor(bggService: BggGameService, merger: CollectionMerger, useCache: boolean = false) {
+    constructor(bggService: BggGameService, merger: CollectionMerger, useCache = false) {
         this.service = bggService;
         this.loadCollections = this.loadCollections.bind(this);
         this.loadCollectionWithRetry = this.loadCollectionWithRetry.bind(this);
@@ -277,7 +277,7 @@ export default class BggGameLoader {
             return plays;
         }
         const retryTime = plays && plays.backoff ? 10000 : 1000;
-        return new Promise<PlayInfo[]>(async resolver => {
+        return new Promise<PlayInfo[]>(resolver => {
             setTimeout(() => resolver(this.loadPlaysWithRetry(name)), retryTime);
         });
 
@@ -299,7 +299,7 @@ export default class BggGameLoader {
             return games;
         } else {
             const retryTime = games && games.backoff ? 10000 : 1000;
-            return new Promise<GameInfo[]>(async resolver => {
+            return new Promise<GameInfo[]>(resolver => {
                 setTimeout(() => resolver(this.loadCollectionWithRetry(name)), retryTime);
             });
         }
@@ -330,7 +330,7 @@ export default class BggGameLoader {
                 this.loadingInfo[loadingIndex].retryInfo = extendeds;
             });
             this.informLoadingHandlers();
-            return new Promise<ExtendedGameInfo[]>(async resolver => {
+            return new Promise<ExtendedGameInfo[]>(resolver => {
                 setTimeout(() => resolver(this.loadGamesWithRetry(games)), retryTime);
             });
         }
