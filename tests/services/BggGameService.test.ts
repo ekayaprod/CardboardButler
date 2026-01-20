@@ -215,87 +215,6 @@ describe("BggGameService", () => {
     });
 
 
-    describe("Get Single Game", () => {
-
-        const expectedUrl = `https://api.geekdo.com/xmlapi2/thing?id=161970&stats=1`;
-        const alchemistsXml = readFileSync("tests/services/testxml/AlchemistsResult.xml", "utf8");
-        const gameId = 161970;
-
-        beforeEach(() => {
-            fetch.mock(expectedUrl, 200, {
-                response: {
-                    status: 200,
-                    body: alchemistsXml
-                }
-            });
-        });
-
-        it("can get extended information about a game", async () => {
-            await service.getGameInfo(gameId);
-        });
-
-        it("can get desciption", async () => {
-            const result = await service.getGameInfo(gameId);
-            expect(!("retryLater" in result));
-            if (!("retryLater" in result)) {
-                expect(result.description).toEqual("A test description");
-            }
-        });
-
-        it("can get averagewieight", async () => {
-            const result = await service.getGameInfo(gameId);
-            expect(!("retryLater" in result));
-            if (!("retryLater" in result)) {
-                expect(result.weight).toEqual(3.8616);
-            }
-        });
-
-        it("can get mechanics", async () => {
-            const result = await service.getGameInfo(gameId);
-            expect(!("retryLater" in result));
-            if (!("retryLater" in result)) {
-                expect(result.mechanics).toEqual(
-                    ["ACT-01 Action Points",
-                        "Card Drafting",
-                        "Hand Management",
-                        "WPL-01 Worker Placement"]);
-            }
-        });
-
-        it("can get categories", async () => {
-            const result = await service.getGameInfo(gameId);
-            expect(!("retryLater" in result));
-            if (!("retryLater" in result)) {
-                expect(result.categories).toEqual(
-                    ["Deduction", "Fantasy"]);
-            }
-        });
-
-        it("can get suggestedPlayers", async () => {
-            const result = await service.getGameInfo(gameId);
-            expect(!("retryLater" in result));
-            if (!("retryLater" in result)) {
-                const numberOfPlayers = result.suggestedNumberOfPlayers;
-                expect(numberOfPlayers).toBeDefined();
-                expect(numberOfPlayers[2]).toBeDefined();
-                expect(numberOfPlayers[1]).toEqual({
-                    numberOfPlayers: 1,
-                    best: 0,
-                    recommended: 4,
-                    notRecommended: 144
-                });
-
-                expect(numberOfPlayers[Infinity]).toEqual({
-                    numberOfPlayers: Infinity,
-                    best: 0,
-                    recommended: 5,
-                    notRecommended: 114
-                });
-            }
-        });
-    });
-
-
     describe("Get Multiple Games", () => {
         const expectedUrlSingle = `https://api.geekdo.com/xmlapi2/thing?id=68448&stats=1`;
 
@@ -328,13 +247,6 @@ describe("BggGameService", () => {
             if (Array.isArray(extendedInfo)) {
                 expect(extendedInfo).toHaveLength(2);
             }
-        });
-
-
-        it("is the same as multiple single", async () => {
-            const gamesInfo = await service.getGamesInfo([gameId]);
-            const gameInfo = await service.getGameInfo(gameId);
-            expect(gamesInfo[0]).toEqual(gameInfo);
         });
     });
 

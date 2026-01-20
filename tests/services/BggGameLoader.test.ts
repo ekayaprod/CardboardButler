@@ -49,17 +49,6 @@ describe("Loading games", () => {
         expect(onUpdateMock).toHaveBeenCalledTimes(3);
     });
 
-    it("can get the users currently shown", () => {
-        const collections = ["Warium", "Nakul"];
-        const getMock = jest.fn((username) => (new Promise<GameInfo[]>(async (resolver) => resolver(
-            await getLargeCollection()
-        ))));
-        service.getUserCollection = getMock;
-        loader.loadCollections(collections);
-        expect(loader.getCurrentNames()).toEqual(collections);
-
-    });
-
     it("can show requests which are currently fetching", async () => {
         const collections = ["Warium"];
         let resolver: (value?: Promise<GameInfo[]>) => void;

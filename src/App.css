@@ -29,11 +29,6 @@ div#content{
   display: inline-block;
   
 }
-.headroom--unpinned {
-position: fixed;
-transform: translateY(-200%);
-}
-
 @media (max-width: 600px) {
   .main.container{
       margin-top:3em;
@@ -47,14 +42,6 @@ transform: translateY(-200%);
   
 }
 }
-.headroom{
-  transition: box-shadow 500ms ease-in-out;
-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
-}
-
-.headroom--unfixed {
-box-shadow: 0px 0px 0px rgba(0,0,0,0);
-}
 
 .logoscript{
   font-family: 'Satisfy', cursive;
@@ -66,24 +53,6 @@ box-shadow: 0px 0px 0px rgba(0,0,0,0);
   margin-bottom: 15px;
 } 
 
-.reroll{
-  position: fixed;
-  bottom: 2pc;
-  width: 25pc;
-  left: 0;
-  right: 0;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
 .logoHeader{
   padding: 1em;
-}
-
-.settingsIcon {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  cursor: pointer;
-
 }
