@@ -177,13 +177,11 @@ export default class BggGameLoader {
     private getShownGamesMap(currentNames: string[], collectionMap: CollectionMap) {
         return currentNames.reduce((prev, cur) => {
             const known = collectionMap[cur];
-            if (!known) {
-                return prev;
+            if (known) {
+                prev[cur] = known;
             }
-            const newC: CollectionMap = {};
-            newC[cur] = known;
-            return Object.assign({}, prev, newC);
-        }, {}) as CollectionMap;
+            return prev;
+        }, {} as CollectionMap);
     }
 
     private getGamesWithExtraInfoMemo: (games: GameInfo[], extraInfoMap: ExtraInfoMap) => GameInfoPlus[];
