@@ -3,6 +3,7 @@
 import * as React from "react";
 import ValidatingUserInput from "./ValidatingUserInput";
 import { Image, Header, Message } from "semantic-ui-react";
+import butlerPng from "../assets/butler.png";
 
 interface Props {
     onNameSelect: (names: string[]) => any;
@@ -20,7 +21,7 @@ export default class WelcomePage extends React.PureComponent<Props> {
             <div className="ui middle aligned center aligned grid givenames" data-testid="WelcomePage">
                 <div className="column">
                     <div>
-                        <Image src="butler.png" />
+                        <Image src={butlerPng} />
                         <Header as="h3">
                             <span>Good day, how can I help you today?</span>
                         </Header>
