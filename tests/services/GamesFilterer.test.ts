@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/extend-expect";
 import { GamesFilterAndSorter } from "../../src/services/GamesFilterAndSorter";
 import { alchemists, alchemistsTheKing, sevenWonders, smallWorld } from "./model/TestGames";
-import { GameInfo, GameInfoPlus, SuggestedNumberOfPlayersMap } from "../../src/models/GameInfo";
+import { GameInfo, GameInfoPlus, SuggestedNumberOfPlayersMap } from "../../src/types";
 import { getHugeCollection } from "./TestHelpers";
 
 describe("Filtering games", () => {

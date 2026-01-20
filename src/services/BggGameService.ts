@@ -1,7 +1,7 @@
-import FetchService from "./FetchService";
+import { FetchService } from "../types";
 import * as convert from "xml-js";
-import { GameInfo, ExtendedGameInfo, SuggestedNumberOfPlayersMap, PlayInfo } from "../models/GameInfo";
-import { UserInfo } from "../models/UserInfo";
+import { GameInfo, ExtendedGameInfo, SuggestedNumberOfPlayersMap, PlayInfo } from "../types";
+import { UserInfo } from "../types";
 
 
 export type BggRetryResult = { retryLater: boolean, backoff?: boolean, error?: Error };

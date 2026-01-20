@@ -1,7 +1,6 @@
 import * as React from "react";
 import ValidatingUserInput from "./ValidatingUserInput";
-import { Image, Header, Message } from "semantic-ui-react";
-import butlerPng from "../assets/butler.png";
+import { Header, Message } from "semantic-ui-react";
 
 interface Props {
     onNameSelect: (names: string[]) => any;
@@ -14,7 +13,6 @@ const WelcomePage: React.FC<Props> = ({ userValidator, onNameSelect, showWarning
         <div className="ui middle aligned center aligned grid givenames" data-testid="WelcomePage">
             <div className="column">
                 <div>
-                    <Image src={butlerPng} />
                     <Header as="h3">
                         <span>Good day, how can I help you today?</span>
                     </Header>

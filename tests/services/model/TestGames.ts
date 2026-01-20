@@ -1,4 +1,4 @@
-import { GameInfo } from "../../../src/models/GameInfo";
+import { GameInfo } from "../../../src/types";
 
 export const alchemists: () => GameInfo = () => ({
     id: 161970,

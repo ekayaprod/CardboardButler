@@ -1,6 +1,6 @@
 import * as React from "react";
 import BggGameService from "../services/BggGameService";
-import { GameInfoPlus } from "../models/GameInfo";
+import { GameInfoPlus } from "../types";
 import { CollectionMerger } from "../services/CollectionMerger";
 import WelcomePage from "./WelcomePage";
 import CollectionPage from "./CollectionPage";

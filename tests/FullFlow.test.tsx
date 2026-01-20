@@ -5,7 +5,7 @@ import { render, fireEvent, waitForElement } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import BggGameService from "../src/services/BggGameService";
 import * as fetchMock from "fetch-mock";
-import { GameInfo } from "../src/models/GameInfo";
+import { GameInfo } from "../src/types";
 import { getSmallCollection } from "./services/TestHelpers";
 
 
