@@ -81,5 +81,27 @@ describe("CollectionMerger", () => {
         );
     });
 
+    it("does not mutate input userRating", () => {
+        const ratingA = { "UserA": 10 };
+        const ratingB = { "UserB": 9 };
+        const game1A = Object.assign({}, testGame1, { userRating: ratingA });
+        const game1B = Object.assign({}, testGame1, { userRating: ratingB });
+
+        const result = merger.getMergedCollection({
+            "UserA": [game1A],
+            "UserB": [game1B]
+        });
+
+        expect(result).toHaveLength(1);
+        expect(result[0].userRating).toEqual({ "UserA": 10, "UserB": 9 });
+
+        // Check input objects are unchanged
+        expect(game1A.userRating).toBe(ratingA);
+        expect(ratingA).toEqual({ "UserA": 10 });
+
+        expect(game1B.userRating).toBe(ratingB);
+        expect(ratingB).toEqual({ "UserB": 9 });
+    });
+
 });
 
