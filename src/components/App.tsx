@@ -1,9 +1,8 @@
 import * as React from "react";
 import BggGameService from "../services/BggGameService";
 import { GameInfoPlus } from "../types";
-import { CollectionMerger } from "../services/CollectionMerger";
 import CollectionPage from "./CollectionPage";
-import BggGameLoader, { LoadingInfo, PlaysLoadingInfo } from "../services/BggGameLoader";
+import BggGameLoader, { LoadingInfo, PlaysLoadingInfo, CollectionMerger } from "../services/BggGameLoader";
 import { Dimmer, Loader, Progress, Header, Message } from "semantic-ui-react";
 import ValidatingUserInput from "./ValidatingUserInput";
 
