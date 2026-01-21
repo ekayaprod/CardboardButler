@@ -37,6 +37,9 @@ class BggGameService {
             return [];
         }
         const allItems: convert.Element[] = jsObj.elements[0].elements;
+        if (allItems === undefined) {
+            return [];
+        }
         return allItems.map((item: convert.Element) => {
             const elements = item.elements;
             const valueOf = (attributeName: string) => this.getTagValue(elements, attributeName);
