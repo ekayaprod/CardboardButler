@@ -69,6 +69,14 @@ describe("SelectUserInput react component", () => {
             expect(getByTestId("Input0Valid")).toBeDefined();
             expect(() => getByTestId("Input2Valid")).toThrow();
         });
+
+        it("Renders a warning to show if name is invalid", () => {
+            const testNames: string[] = ["Warium", "Cyndaq", "Hejej"];
+            const invalidNames: string[] = ["Hejej"];
+            const { getByTestId } = render(<SelectUserInput bggNames={testNames} invalidNames={invalidNames} />);
+            expect(getByTestId("Input2Invalid")).toBeDefined();
+            expect(() => getByTestId("Input0Invalid")).toThrow();
+        });
         it("Disables 'use theese names' button when there are invalid names", () => {
             const testNames: string[] = ["Warium", "Cyndaq", "Hejej"];
             const validNames: string[] = ["Warium", "Cyndaq"];

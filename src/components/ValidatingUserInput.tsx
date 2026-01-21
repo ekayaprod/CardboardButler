@@ -5,6 +5,7 @@ interface SelectUserInputProps {
     bggNames?: string[];
     onNameChange?: (newNames: string[]) => any;
     validNames?: string[];
+    invalidNames?: string[];
     loadingNames?: string[];
     onNameSelect?: (names: string[]) => any;
 }
@@ -67,7 +68,7 @@ export class SelectUserInput extends React.PureComponent<SelectUserInputProps> {
     render() {
         const namesToShow = this.getNamesToShow();
         const showDelete = namesToShow.length > 1;
-        const { validNames = [], loadingNames = [] } = this.props;
+        const { validNames = [], loadingNames = [], invalidNames = [] } = this.props;
         const hasEnoughNames = namesToShow.length > 0 && namesToShow[0] !== "";
         const forwardButtonText = `Can you help ${namesToShow.length === 1 ? "me" : "us"} find a game to play?`;
         const canUseNames = hasEnoughNames && namesToShow.every((name) => validNames.indexOf(name) > -1);
@@ -76,10 +77,15 @@ export class SelectUserInput extends React.PureComponent<SelectUserInputProps> {
                 {
                     namesToShow.map((name, i) => {
                         const isValid = validNames.indexOf(name) > -1;
+                        const isInvalid = invalidNames.indexOf(name) > -1;
                         const isLoading = loadingNames.indexOf(name) > -1;
                         const isLast = i === namesToShow.length - 1;
                         const inputName = "Input" + i;
-                        const isValidLabel = isValid ? { icon: "check", "data-testid": inputName + "Valid" } : null;
+                        let isValidLabel = isValid ? { icon: "check", "data-testid": inputName + "Valid" } : null;
+                        if (isInvalid) {
+                            isValidLabel = { icon: "warning sign", "data-testid": inputName + "Invalid", color: "red" } as any;
+                        }
+
                         const removeButton = showDelete ? (
                             <Icon
                                 data-testid={inputName + "Delete"}
@@ -228,7 +234,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
     }
 
     render() {
-        const { validNames, shownNames, loadingNames } = this.state;
+        const { validNames, shownNames, loadingNames, invalidNames } = this.state;
         const { onNameSelect } = this.props;
         return (
             <div>
@@ -238,6 +244,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
                 <SelectUserInput
                     bggNames={shownNames}
                     validNames={validNames}
+                    invalidNames={invalidNames}
                     onNameChange={this.onNamesChange}
                     loadingNames={loadingNames}
                     onNameSelect={onNameSelect}

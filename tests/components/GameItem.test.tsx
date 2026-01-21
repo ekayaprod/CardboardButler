@@ -1,11 +1,10 @@
 
 import * as React from "react";
-import { GameListItem } from "../../src/components/CollectionPage";
+import { GameListItem, DescriptionGenerator } from "../../src/components/CollectionPage";
 import { GameInfo } from "../../src/types";
 import { render, fireEvent, waitForElement } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { alchemists } from "../services/model/TestGames";
-import DescriptionGenerator from "../../src/services/GameDescriptionGenerator";
 
 describe("GameItem react component", () => {
 
