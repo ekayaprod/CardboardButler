@@ -69,7 +69,7 @@ class BggGameService {
      */
     async getUserInfo(username: string): Promise<UserInfo> {
         console.log(`[DEBUG] BggGameService: getUserInfo called for ${username}`);
-        const xml = await this.fetUserInfoXml(username);
+        const xml = await this.fetchUserInfoXml(username);
         if (typeof xml !== "string") {
             console.error(`[DEBUG] BggGameService: getUserInfo failed for ${username}`, xml);
             return {
@@ -277,24 +277,24 @@ class BggGameService {
 
     private async fetchCollectionXml(username: string) {
         const url = this.buildCollectionUrl(username);
-        return this.fethXml(url);
+        return this.fetchXml(url);
     }
 
 
     private async fetchGamesXml(ids: number[]) {
         const url = this.buildGameUrls(ids);
-        return this.fethXml(url);
+        return this.fetchXml(url);
     }
 
 
     private async fetchPlaysXml(username: string, pageNumber: number) {
         const url = this.buildPlaysUrl(username, pageNumber);
-        return this.fethXml(url);
+        return this.fetchXml(url);
     }
 
 
 
-    private async fethXml(url: string) {
+    private async fetchXml(url: string) {
         const tryFetch = async (urlToFetch: string) => {
             console.log(`[DEBUG] BggGameService: Attempting fetch: ${urlToFetch}`);
             // Fix: Add credentials: 'omit' to prevent 401 Unauthorized caused by sending cookies to BGG
@@ -328,7 +328,7 @@ class BggGameService {
     }
 
 
-    private async fetUserInfoXml(username: string) {
+    private async fetchUserInfoXml(username: string) {
         const url = this.buildUserUrl(username);
         const tryFetch = async (urlToFetch: string) => {
             console.log(`[DEBUG] BggGameService: UserInfo fetch: ${urlToFetch}`);
