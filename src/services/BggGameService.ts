@@ -297,7 +297,8 @@ class BggGameService {
     private async fethXml(url: string) {
         const tryFetch = async (urlToFetch: string) => {
             console.log(`[DEBUG] BggGameService: Attempting fetch: ${urlToFetch}`);
-            return this.getFetch()(urlToFetch).then(async (res) => {
+            // Fix: Add credentials: 'omit' to prevent 401 Unauthorized caused by sending cookies to BGG
+            return this.getFetch()(urlToFetch, { credentials: 'omit' }).then(async (res) => {
                 console.log(`[DEBUG] BggGameService: Response status for ${urlToFetch}: ${res.status}`);
                 if (res.status === 200) {
                     return res.text();
@@ -331,7 +332,8 @@ class BggGameService {
         const url = this.buildUserUrl(username);
         const tryFetch = async (urlToFetch: string) => {
             console.log(`[DEBUG] BggGameService: UserInfo fetch: ${urlToFetch}`);
-            return this.getFetch()(urlToFetch).then(async (res) => {
+            // Fix: Add credentials: 'omit' here as well
+            return this.getFetch()(urlToFetch, { credentials: 'omit' }).then(async (res) => {
                 console.log(`[DEBUG] BggGameService: UserInfo Response status for ${urlToFetch}: ${res.status}`);
                 if (res.status === 200 || res.status === 202) {
                     return await res.text();
