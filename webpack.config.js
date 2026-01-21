@@ -104,7 +104,7 @@ const prodConfig = {
   output: {
     filename: 'cardboardbutler.[hash].min.js', // Hashed filename for cache busting
     chunkFilename: '[name].[hash].min.js',
-    path: resolve(__dirname, 'dist'), // Output directory
+    path: resolve(__dirname, 'docs'), // Output directory
     publicPath: '',
   },
   devtool: 'source-map', // Full source maps for production debugging
