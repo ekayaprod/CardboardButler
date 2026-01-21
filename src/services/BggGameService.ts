@@ -317,7 +317,8 @@ class BggGameService {
             return await tryFetch(url);
         } catch (e) {
             console.warn(`[DEBUG] BggGameService: Direct fetch failed for ${url}, trying proxy. Error:`, e);
-            const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
+            // Switch to AllOrigins Proxy
+            const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
             try {
                 return await tryFetch(proxyUrl);
             } catch (proxyError) {
@@ -350,7 +351,8 @@ class BggGameService {
             return await tryFetch(url);
         } catch (e) {
             console.warn(`[DEBUG] BggGameService: Direct UserInfo fetch failed for ${url}, trying proxy. Error:`, e);
-            const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
+            // Switch to AllOrigins Proxy
+            const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
             try {
                 return await tryFetch(proxyUrl);
             } catch (proxyError) {

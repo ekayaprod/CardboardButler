@@ -190,7 +190,7 @@ describe("BggGameService", () => {
                 }
             });
             // Mock proxy failure too
-            fetch.mock("begin:https://corsproxy.io", 503, {
+            fetch.mock("begin:https://api.allorigins.win/raw", 503, {
                 response: {
                      throws: expectedError
                 }
@@ -441,7 +441,7 @@ describe("BggGameService", () => {
             // Code fix seems better: 202 is a valid "wait" response, not a failure requiring proxy.
 
             // For now, let's mock proxy to return 202 as well.
-            fetch.mock("begin:https://corsproxy.io", 202, {
+            fetch.mock("begin:https://api.allorigins.win/raw", 202, {
                 response: {
                     status: 202,
                     body: tryAgainMessage
@@ -493,7 +493,7 @@ describe("BggGameService", () => {
                     throws: error
                 }
             });
-             fetch.mock("begin:https://corsproxy.io", 503, {
+             fetch.mock("begin:https://api.allorigins.win/raw", 503, {
                 response: {
                     throws: error
                 }
