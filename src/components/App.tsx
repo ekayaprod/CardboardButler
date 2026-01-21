@@ -120,26 +120,34 @@ export default class App extends React.Component<AppProps, AppState> {
 
 
     onNameSelect(newNames: string[]) {
+        console.log("[DEBUG] App: onNameSelect called with", newNames);
         if (newNames.join(",") !== this.state.names.join(",")) {
             this.setState({
                 names: newNames
             });
             window.location.hash = "usernames=" + newNames.join(",");
             if (this._ismounted) {
+                console.log("[DEBUG] App: Loading collections for", newNames);
                 this.loader.loadCollections(newNames).then(() => {
                     this.loader.loadExtendedInfo().then(() => {
                         this.loader.loadPlays();
                     });
                 });
             }
+        } else {
+            console.log("[DEBUG] App: Names unchanged, skipping load");
         }
     }
 
 
     async userValidator(name: string) {
+        console.log(`[DEBUG] App: userValidator invoked for '${name}'`);
         const res = await this.getBggService().getUserInfo(name);
+        console.log(`[DEBUG] App: userValidator result for '${name}':`, res);
+        
         const beingToldToBackOff = res.isValid === "unknown" && res.error === "backoff";
         if (beingToldToBackOff) {
+            console.warn("[DEBUG] App: Backoff triggered");
             this.setState({ showBackoff: true });
             return false;
         } else {
