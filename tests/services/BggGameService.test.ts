@@ -196,6 +196,30 @@ describe("BggGameService", () => {
             }
         });
 
+        it("valid users gives error if bgg returns 500 with HTML", async () => {
+            fetch.mock(validUserUrl, 500, {
+                response: {
+                    status: 500,
+                    body: "<html><body>Internal Server Error</body></html>"
+                }
+            });
+            const result = await service.getUserInfo("Warium");
+            // If the code crashes, this test will fail or timeout.
+            // We expect it to handle it gracefully (likely returning unknown valid state or error)
+            expect(result.isValid).toBe("unknown");
+        });
+
+        it("valid users gives error if bgg returns 401 with HTML", async () => {
+             fetch.mock(validUserUrl, 401, {
+                 response: {
+                     status: 401,
+                     body: "<html><body>Unauthorized</body></html>"
+                 }
+             });
+             const result = await service.getUserInfo("Warium");
+             expect(result.isValid).toBe("unknown");
+         });
+
 
         describe("attributes", () => {
             it("name", async () => {
