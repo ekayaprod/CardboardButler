@@ -1,4 +1,4 @@
-import DescriptionGenerator from "../../src/services/GameDescriptionGenerator";
+import { DescriptionGenerator } from "../../src/components/CollectionPage";
 import "@testing-library/jest-dom/extend-expect";
 import { alchemists } from "./model/TestGames";
 
