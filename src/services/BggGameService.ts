@@ -3,29 +3,30 @@ import * as convert from "xml-js";
 import { GameInfo, ExtendedGameInfo, SuggestedNumberOfPlayersMap, PlayInfo } from "../types";
 import { UserInfo } from "../types";
 
-
 export type BggRetryResult = { retryLater: boolean, backoff?: boolean, error?: Error };
+
 /**
- * A service that can wraps the BGG Api.
- * It does not cache, or handle retries, it simple transform the bgg api into xml
- * Be adviced: This uses a CORS proxy, to get around the BGG API not providing CORS information.
+ * A service that wraps the BGG Api.
+ * It uses a fallback strategy with multiple CORS proxies to ensure reliability
+ * since BGG often blocks individual public proxies.
  */
 class BggGameService {
 
     private fetchService: FetchService;
 
-    /**
-     * Construct a new bgg game service.
-     * @param fetchService the service to use when trying to fetch information from bgg. If none is given the browser global fetch will be used.
-     */
+    // Priority list of proxies to try
+    private readonly PROXIES = [
+        (url: string) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        (url: string) => `https://thingproxy.freeboard.io/fetch/${url}`
+    ];
+
     constructor(fetchService?: FetchService) {
         this.fetchService = fetchService || fetch;
     }
 
     /**
      * Gets a collection of the owned games from a user.
-     * @param username username of the user whose collection to get.
-     * @returns Either a list of game infromation, or a bgg retry result, if there is an error or bgg needed time to generate the list.
      */
     async getUserCollection(username: string): Promise<BggRetryResult | GameInfo[]> {
         const xmlResult = await this.fetchCollectionXml(username);
@@ -35,6 +36,10 @@ class BggGameService {
         const jsObj = convert.xml2js(xmlResult);
         if (jsObj.elements === undefined) {
             return [];
+        }
+        // Check for 202 Message (BGG processing)
+        if (jsObj.elements[0].name === "message") {
+            return { retryLater: true, error: new Error("BGG is processing the collection. Please try again later.") };
         }
         const allItems: convert.Element[] = jsObj.elements[0].elements;
         if (allItems === undefined) {
@@ -61,12 +66,6 @@ class BggGameService {
         });
     }
 
-    /**
-     * Get user information about a given useranme.
-     * If a username is given that does not excist then "isValid:true" will be returned.
-     * If the call to bgg fails, then "isValid:unknown" is returend, as the service cannot know if the name is valid.
-     * @param username the username to get information for
-     */
     async getUserInfo(username: string): Promise<UserInfo> {
         console.log(`[DEBUG] BggGameService: getUserInfo called for ${username}`);
         const xml = await this.fetchUserInfoXml(username);
@@ -101,7 +100,6 @@ class BggGameService {
         };
     }
 
-
     async getGamesInfo(ids: number[]): Promise<BggRetryResult | ExtendedGameInfo[]> {
         const xml = await this.fetchGamesXml(ids);
         if (typeof xml === "string") {
@@ -113,8 +111,6 @@ class BggGameService {
         }
     }
 
-
-
     async getPlays(username: string): Promise<BggRetryResult | PlayInfo[]> {
         const firstPage = await this.getPlaysPage(username);
         if ("plays" in firstPage) {
@@ -122,7 +118,7 @@ class BggGameService {
             const needMorePlays = firstPage.totalPlays > firstPage.plays.length;
             if (needMorePlays) {
                 const numberOfPagesMissing = Math.ceil(totalPlays / plays.length) - 1;
-                const missingPagesPromises = new Array(numberOfPagesMissing).fill(0).map((_, i) => this.getPlaysPage(username, i + 2)); // start at index 2, we already have page 1
+                const missingPagesPromises = new Array(numberOfPagesMissing).fill(0).map((_, i) => this.getPlaysPage(username, i + 2));
                 const missingPagesResults = await Promise.all(missingPagesPromises);
                 const missingPagesPlays = missingPagesResults.reduce((prev, cur) => ("plays" in cur) ? prev.concat(cur.plays) : prev, [] as PlayInfo[]);
                 return [...plays, ...missingPagesPlays];
@@ -132,7 +128,6 @@ class BggGameService {
         } else {
             return firstPage;
         }
-
     }
 
     async getPlaysPage(username: string, pageNumber = 1) {
@@ -159,8 +154,9 @@ class BggGameService {
         }
     }
 
-    private elementToPlayInfo(mainElement: convert.Element): PlayInfo {
+    // --- Private Parsing Methods ---
 
+    private elementToPlayInfo(mainElement: convert.Element): PlayInfo {
         return {
             date: new Date(mainElement.attributes["date"]),
             gameId: parseInt(mainElement.elements[0].attributes["objectid"].toString()),
@@ -168,10 +164,7 @@ class BggGameService {
             playId: parseInt(mainElement.attributes["id"].toString()),
             quantity: parseInt(mainElement.attributes["quantity"].toString()),
         };
-
     }
-
-
 
     private elementToExtendedInfo(mainElement: convert.Element): ExtendedGameInfo {
         const mainElements = mainElement.elements;
@@ -192,7 +185,6 @@ class BggGameService {
                 };
             }
             return undefined;
-
         });
         const suggesteNumberOfPlayersMap: SuggestedNumberOfPlayersMap = suggestedNumberOfPlayersArray.filter((snp) => snp).reduce((p, c) => Object.assign(p, { [c.numberOfPlayers]: c }), {});
         const getLinkValues = (typeName: string) => mainElements.filter((e) => e.name === "link" && e.attributes["type"] === typeName).map((e) => e.attributes["value"].toString());
@@ -204,7 +196,6 @@ class BggGameService {
             suggestedNumberOfPlayers: suggesteNumberOfPlayersMap
         };
     }
-
 
     private getFetch() {
         return this.fetchService;
@@ -245,12 +236,10 @@ class BggGameService {
         return result;
     }
 
-
     private getFamilies(elements: convert.Element[]) {
         const ranks = this.getRanks(elements);
         return ranks.filter((r) => r.type === "family");
     }
-
 
     private getRanks(elements: convert.Element[]) {
         const ratings = this.getRatingElement(elements);
@@ -275,92 +264,7 @@ class BggGameService {
         return tagElement.elements[0].text.toString();
     }
 
-    private async fetchCollectionXml(username: string) {
-        const url = this.buildCollectionUrl(username);
-        return this.fetchXml(url);
-    }
-
-
-    private async fetchGamesXml(ids: number[]) {
-        const url = this.buildGameUrls(ids);
-        return this.fetchXml(url);
-    }
-
-
-    private async fetchPlaysXml(username: string, pageNumber: number) {
-        const url = this.buildPlaysUrl(username, pageNumber);
-        return this.fetchXml(url);
-    }
-
-
-
-    private async fetchXml(url: string) {
-        const tryFetch = async (urlToFetch: string) => {
-            console.log(`[DEBUG] BggGameService: Attempting fetch: ${urlToFetch}`);
-            // Fix: Add credentials: 'omit' to prevent 401 Unauthorized caused by sending cookies to BGG
-            return this.getFetch()(urlToFetch, { credentials: 'omit' }).then(async (res) => {
-                console.log(`[DEBUG] BggGameService: Response status for ${urlToFetch}: ${res.status}`);
-                if (res.status === 200) {
-                    return res.text();
-                }
-                if (res.status === 429) {
-                    console.warn(`[DEBUG] BggGameService: 429 Rate Limit Hit for ${urlToFetch}`);
-                    return { retryLater: true, backoff: true };
-                }
-                else {
-                    throw new Error(`Status ${res.status}`);
-                }
-            });
-        };
-
-        try {
-            return await tryFetch(url);
-        } catch (e) {
-            console.warn(`[DEBUG] BggGameService: Direct fetch failed for ${url}, trying proxy. Error:`, e);
-            // Switch to AllOrigins Proxy
-            const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-            try {
-                return await tryFetch(proxyUrl);
-            } catch (proxyError) {
-                console.error(`[DEBUG] BggGameService: Proxy fetch failed for ${proxyUrl}`, proxyError);
-                return { retryLater: true, error: proxyError };
-            }
-        }
-    }
-
-
-    private async fetchUserInfoXml(username: string) {
-        const url = this.buildUserUrl(username);
-        const tryFetch = async (urlToFetch: string) => {
-            console.log(`[DEBUG] BggGameService: UserInfo fetch: ${urlToFetch}`);
-            // Fix: Add credentials: 'omit' here as well
-            return this.getFetch()(urlToFetch, { credentials: 'omit' }).then(async (res) => {
-                console.log(`[DEBUG] BggGameService: UserInfo Response status for ${urlToFetch}: ${res.status}`);
-                if (res.status === 200 || res.status === 202) {
-                    return await res.text();
-                }
-                if (res.status === 429) {
-                    console.warn(`[DEBUG] BggGameService: UserInfo 429 Rate Limit`);
-                    return { error: "backoff" };
-                }
-                throw new Error(`Status ${res.status}`);
-            });
-        };
-
-        try {
-            return await tryFetch(url);
-        } catch (e) {
-            console.warn(`[DEBUG] BggGameService: Direct UserInfo fetch failed for ${url}, trying proxy. Error:`, e);
-            // Switch to AllOrigins Proxy
-            const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-            try {
-                return await tryFetch(proxyUrl);
-            } catch (proxyError) {
-                console.error(`[DEBUG] BggGameService: Proxy UserInfo fetch failed for ${proxyUrl}`, proxyError);
-                return { error: proxyError };
-            }
-        }
-    }
+    // --- URL Builders ---
 
     private buildPlaysUrl(username: string, pageNumber: number) {
         const baseUrl = `https://api.geekdo.com/xmlapi2/plays?username=${username}`;
@@ -379,9 +283,63 @@ class BggGameService {
         return `https://api.geekdo.com/xmlapi2/user?name=${username}`;
     }
 
+    // --- Core Network Logic with Proxy Fallback ---
 
+    private async fetchCollectionXml(username: string) {
+        const url = this.buildCollectionUrl(username);
+        return this.fetchWithFallbacks(url);
+    }
+
+    private async fetchGamesXml(ids: number[]) {
+        const url = this.buildGameUrls(ids);
+        return this.fetchWithFallbacks(url);
+    }
+
+    private async fetchPlaysXml(username: string, pageNumber: number) {
+        const url = this.buildPlaysUrl(username, pageNumber);
+        return this.fetchWithFallbacks(url);
+    }
+
+    private async fetchUserInfoXml(username: string) {
+        const url = this.buildUserUrl(username);
+        return this.fetchWithFallbacks(url);
+    }
+
+    /**
+     * Tries to fetch the URL using a list of proxies.
+     * Stops at the first successful response (200 or 202).
+     */
+    private async fetchWithFallbacks(targetUrl: string) {
+        let lastError: any = null;
+
+        for (const proxyGenerator of this.PROXIES) {
+            const proxiedUrl = proxyGenerator(targetUrl);
+            console.log(`[DEBUG] BggGameService: Attempting fetch via ${proxiedUrl}`);
+
+            try {
+                // IMPORTANT: credentials: 'omit' prevents BGG 401 Unauthorized errors
+                const res = await this.getFetch()(proxiedUrl, { credentials: 'omit' });
+
+                console.log(`[DEBUG] BggGameService: Response status: ${res.status}`);
+
+                if (res.status === 200 || res.status === 202) {
+                    return await res.text();
+                } else if (res.status === 429) {
+                    console.warn(`[DEBUG] BggGameService: Rate Limit (429) hit on proxy`);
+                    return { retryLater: true, backoff: true };
+                } else {
+                    console.warn(`[DEBUG] BggGameService: Proxy returned status ${res.status}. Trying next proxy...`);
+                    lastError = new Error(`Status ${res.status}`);
+                }
+            } catch (e) {
+                console.warn(`[DEBUG] BggGameService: Network error with proxy. Trying next...`, e);
+                lastError = e;
+            }
+        }
+
+        console.error(`[DEBUG] BggGameService: All proxies failed. Last error:`, lastError);
+        return { retryLater: true, error: lastError || new Error("All proxies failed") };
+    }
 }
-
-
 
 export default BggGameService;
