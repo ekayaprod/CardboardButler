@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/PhilipK/CardboardButler",
   "scripts": {
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && rm -rf dist && webpack --mode production",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && rm -rf docs && webpack --mode production",
     "start": "yarn run start-dev",
     "start-dev": "export NODE_OPTIONS=--openssl-legacy-provider && webpack-dev-server --mode development",
     "start-prod": "yarn run build && node scripts/prod-server.js",
