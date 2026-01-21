@@ -235,6 +235,18 @@ describe("BggGameService", () => {
                     expect(userinfo.username).toBe("Warium");
                 }
             });
+
+            it("handles 202 message body gracefully", async () => {
+                const messageXml = `<message>Your request for this collection has been accepted and will be processed. Please try again later for access.</message>`;
+                fetch.mock(validUserUrl, 202, {
+                    response: {
+                        status: 202,
+                        body: messageXml
+                    }
+                });
+                const userinfo = await service.getUserInfo("Warium");
+                expect(userinfo.isValid).toBe("unknown");
+            });
         });
     });
 
