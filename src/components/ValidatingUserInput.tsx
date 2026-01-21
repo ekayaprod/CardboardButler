@@ -224,8 +224,14 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
                 // things might have changed, so check again if the name is still shown
                 if (isNameShown(name) && doesNameNeedValidation(name)) {
                     setNameLoading(name, true);
-                    const isValid = await userValidator(name);
-                    setNameValidity(name, isValid);
+                    try {
+                        const isValid = await userValidator(name);
+                        setNameValidity(name, isValid);
+                    } catch (e) {
+                        // eslint-disable-next-line no-console
+                        console.error("Error validating user:", e);
+                        setNameValidity(name, false);
+                    }
                     setNameLoading(name, false);
                 }
                 // wait a little with calling validator, to make sure people are done typing.
