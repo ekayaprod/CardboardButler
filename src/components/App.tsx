@@ -166,7 +166,7 @@ export default class App extends React.Component<AppProps, AppState> {
                 </Dimmer>
                 }
 
-                {games.length > 0 && showingCollection && <CollectionPage currentUsers={this.state.names} games={games} />}
+                {showingCollection && (games.length > 0 || !isLoadingCollections) && <CollectionPage currentUsers={this.state.names} games={games} />}
                 {isLoadingCollections && games.length > 0 &&
                     <div style={progressStyle}>
                         <Loader active inline="centered" content={"Finding games for " + loadingCollections.join(", ")} />

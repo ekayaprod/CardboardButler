@@ -37,6 +37,9 @@ class BggGameService {
             return [];
         }
         const allItems: convert.Element[] = jsObj.elements[0].elements;
+        if (allItems === undefined) {
+            return [];
+        }
         return allItems.map((item: convert.Element) => {
             const elements = item.elements;
             const valueOf = (attributeName: string) => this.getTagValue(elements, attributeName);
@@ -290,36 +293,57 @@ class BggGameService {
 
 
     private async fethXml(url: string) {
-        return this.getFetch()(url).then(async (res) => {
-            if (res.status === 200) {
-                return res.text();
-            }
-            if (res.status === 429) {
-                return { retryLater: true, backoff: true };
-            }
-            else {
-                return { retryLater: true };
-            }
-        }).catch((error: Error) => {
-            return { retryLater: true, error };
+        const tryFetch = async (urlToFetch: string) => {
+            return this.getFetch()(urlToFetch).then(async (res) => {
+                if (res.status === 200) {
+                    return res.text();
+                }
+                if (res.status === 429) {
+                    return { retryLater: true, backoff: true };
+                }
+                else {
+                    throw new Error(`Status ${res.status}`);
+                }
+            });
+        };
 
-        });
+        try {
+            return await tryFetch(url);
+        } catch (e) {
+            const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
+            try {
+                return await tryFetch(proxyUrl);
+            } catch (proxyError) {
+                return { retryLater: true, error: proxyError };
+            }
+        }
     }
 
 
     private async fetUserInfoXml(username: string) {
         const url = this.buildUserUrl(username);
-        return this.getFetch()(url).then(async (res) => {
-            if (res.status === 200 || res.status === 202) {
-                return await res.text();
+        const tryFetch = async (urlToFetch: string) => {
+            return this.getFetch()(urlToFetch).then(async (res) => {
+                if (res.status === 200 || res.status === 202) {
+                    return await res.text();
+                }
+                if (res.status === 429) {
+                    return { error: "backoff" };
+                }
+                throw new Error(`Status ${res.status}`);
+            });
+        };
+
+        try {
+            return await tryFetch(url);
+        } catch (e) {
+            const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
+            try {
+                return await tryFetch(proxyUrl);
+            } catch (proxyError) {
+                return { error: proxyError };
             }
-            if (res.status === 429) {
-                return { error: "backoff" };
-            }
-            return { error: new Error(`Bgg returned ${res.status}`) };
-        }).catch((error: Error) => {
-            return { error };
-        });
+        }
     }
 
     private buildPlaysUrl(username: string, pageNumber: number) {
