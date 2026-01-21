@@ -2,7 +2,7 @@ import * as React from "react";
 import { GameInfo } from "../../src/types";
 import { render, fireEvent, waitForElement, getByTestId, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
-import FilterBar from "../../src/components/FilterBar";
+import { FilterBar } from "../../src/components/CollectionPage";
 import { FilterAndSortOptions } from "../../src/types";
 
 describe("Filter bar", () => {

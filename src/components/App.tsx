@@ -1,11 +1,52 @@
 import * as React from "react";
 import BggGameService from "../services/BggGameService";
 import { GameInfoPlus } from "../types";
-import { CollectionMerger } from "../services/CollectionMerger";
-import WelcomePage from "./WelcomePage";
 import CollectionPage from "./CollectionPage";
-import BggGameLoader, { LoadingInfo, PlaysLoadingInfo } from "../services/BggGameLoader";
-import { Dimmer, Loader, Progress } from "semantic-ui-react";
+import BggGameLoader, { LoadingInfo, PlaysLoadingInfo, CollectionMerger } from "../services/BggGameLoader";
+import { Dimmer, Loader, Progress, Header, Message } from "semantic-ui-react";
+import ValidatingUserInput from "./ValidatingUserInput";
+
+// --- WelcomePage Component ---
+
+interface WelcomePageProps {
+    onNameSelect: (names: string[]) => any;
+    userValidator: (name: string) => Promise<boolean>;
+    showWarning?: boolean;
+}
+
+const WelcomePage: React.FC<WelcomePageProps> = ({ userValidator, onNameSelect, showWarning }) => {
+    return (
+        <div className="ui middle aligned center aligned grid givenames" data-testid="WelcomePage">
+            <div className="column">
+                <div>
+                    <Header as="h3">
+                        <span>Good day, how can I help you today?</span>
+                    </Header>
+                </div>
+                <div className="ui large form" >
+                    <div className="ui">
+                        <ValidatingUserInput
+                            userValidator={userValidator}
+                            onNameSelect={onNameSelect}
+                        />
+                    </div>
+                </div>
+                {showWarning && <Message>
+                    <Message.Header>BGG is taking a breather</Message.Header>
+                    <p>
+                        Boardgame Geek has a limit on how many requests I can make.
+                        Unfortunatly the limit has been hit for a while, so try agian in a couple of minutes (or 10).
+                    </p>
+                </Message>}
+            </div>
+        </div>
+    );
+};
+
+const MemoizedWelcomePage = React.memo(WelcomePage);
+
+// --- App Component ---
+
 export interface AppProps {
     bggServce?: BggGameService;
 }
@@ -119,7 +160,7 @@ export default class App extends React.Component<AppProps, AppState> {
         const progressStyle: React.CSSProperties = { position: "fixed", borderRadius: 30, bottom: 0, height: 120, left: "20%", right: "20%", padding: 40, backgroundColor: "white" };
         return (
             <span >
-                {!showingCollection && !isLoadingCollections && <WelcomePage onNameSelect={this.onNameSelect} userValidator={this.userValidator} showWarning={showBackoff} />}
+                {!showingCollection && !isLoadingCollections && <MemoizedWelcomePage onNameSelect={this.onNameSelect} userValidator={this.userValidator} showWarning={showBackoff} />}
                 {isLoadingCollections && games.length === 0 && <Dimmer active inverted>
                     <Loader inverted content={"Finding games for " + loadingCollections.join(", ")} />
                 </Dimmer>

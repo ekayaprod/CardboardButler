@@ -4,7 +4,7 @@ import BggGameService from "../../src/services/BggGameService";
 import * as fetchMock from "fetch-mock";
 import { GameInfo, ExtendedGameInfo, PlayInfo } from "../../src/types";
 import { alchemists, sevenWonders, smallWorld } from "./model/TestGames";
-import { CollectionMerger } from "../../src/services/CollectionMerger";
+import { CollectionMerger } from "../../src/services/BggGameLoader";
 import { getLargeCollection } from "./TestHelpers";
 
 describe("Loading games", () => {

@@ -1,4 +1,4 @@
-import { CollectionMerger } from "../../src/services/CollectionMerger";
+import { CollectionMerger } from "../../src/services/BggGameLoader";
 import "@testing-library/jest-dom/extend-expect";
 import { alchemists, alchemistsTheKing } from "./model/TestGames";
 
