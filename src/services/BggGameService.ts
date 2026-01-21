@@ -7,14 +7,14 @@ export type BggRetryResult = { retryLater: boolean, backoff?: boolean, error?: E
 
 /**
  * A service that wraps the BGG Api.
- * It uses a fallback strategy with multiple CORS proxies to ensure reliability
- * since BGG often blocks individual public proxies.
+ * Implements the "Hydra Strategy": Multi-proxy fallback + Strict User-Agent compliance.
  */
 class BggGameService {
 
     private fetchService: FetchService;
 
-    // Priority list of proxies to try
+    // Priority list of proxies.
+    // We prioritize proxies that are less likely to strip Custom Headers.
     private readonly PROXIES = [
         (url: string) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
         (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -30,21 +30,24 @@ class BggGameService {
      */
     async getUserCollection(username: string): Promise<BggRetryResult | GameInfo[]> {
         const xmlResult = await this.fetchCollectionXml(username);
+        // Handle explicit fallback error object
         if (typeof xmlResult !== "string") {
             return xmlResult;
         }
+
         const jsObj = convert.xml2js(xmlResult);
-        if (jsObj.elements === undefined) {
-            return [];
-        }
-        // Check for 202 Message (BGG processing)
+        if (!jsObj.elements) return [];
+
+        // Check for 202 Message (BGG processing queue)
+        // The API returns <message> when queuing.
         if (jsObj.elements[0].name === "message") {
+            console.log("[DEBUG] BggGameService: Received 202/Queued message from BGG.");
             return { retryLater: true, error: new Error("BGG is processing the collection. Please try again later.") };
         }
+
         const allItems: convert.Element[] = jsObj.elements[0].elements;
-        if (allItems === undefined) {
-            return [];
-        }
+        if (!allItems) return [];
+
         return allItems.map((item: convert.Element) => {
             const elements = item.elements;
             const valueOf = (attributeName: string) => this.getTagValue(elements, attributeName);
@@ -69,27 +72,31 @@ class BggGameService {
     async getUserInfo(username: string): Promise<UserInfo> {
         console.log(`[DEBUG] BggGameService: getUserInfo called for ${username}`);
         const xml = await this.fetchUserInfoXml(username);
+
         if (typeof xml !== "string") {
             console.error(`[DEBUG] BggGameService: getUserInfo failed for ${username}`, xml);
+            // Translate proxy errors to "unknown" so the UI doesn't just crash
             return {
                 isValid: "unknown",
                 error: xml.error
             };
         }
+
         const jsObj = convert.xml2js(xml);
         if (jsObj.elements) {
-            const attributes = jsObj.elements[0].attributes;
-            if (attributes) {
-                const id = attributes.id;
+            const root = jsObj.elements[0];
+            // Check for valid user response structure
+            if (root.attributes && root.attributes.id !== undefined) {
+                const id = root.attributes.id;
+                // id="" means invalid user in BGG XMLAPI2
                 if (id !== "") {
-                    const name = attributes.name;
                     return {
                         isValid: true,
-                        username: name
+                        username: root.attributes.name as string
                     };
                 }
             } else {
-                return {
+                 return {
                     isValid: "unknown",
                     error: "Bgg is likely processing"
                 };
@@ -135,7 +142,7 @@ class BggGameService {
         if (typeof xml === "string") {
             const jsObj = convert.xml2js(xml) as convert.Element;
             const mainPlayElement = jsObj.elements[0];
-            if (mainPlayElement.elements === undefined) {
+            if (!mainPlayElement.elements) {
                 return {
                     totalPlays: 0,
                     pageNumber: pageNumber,
@@ -264,23 +271,23 @@ class BggGameService {
         return tagElement.elements[0].text.toString();
     }
 
-    // --- URL Builders ---
+    // --- URL Builders (UPDATED to boardgamegeek.com per Spec) ---
 
     private buildPlaysUrl(username: string, pageNumber: number) {
-        const baseUrl = `https://api.geekdo.com/xmlapi2/plays?username=${username}`;
+        const baseUrl = `https://boardgamegeek.com/xmlapi2/plays?username=${username}`;
         return pageNumber > 1 ? (baseUrl + "&page=" + pageNumber) : baseUrl;
     }
 
     private buildGameUrls(ids: number[]) {
-        return `https://api.geekdo.com/xmlapi2/thing?id=${ids.join(",")}&stats=1`;
+        return `https://boardgamegeek.com/xmlapi2/thing?id=${ids.join(",")}&stats=1`;
     }
 
     private buildCollectionUrl(username: string) {
-        return `https://api.geekdo.com/xmlapi2/collection?username=${username}&own=1&stats=1&excludesubtype=boardgameexpansion`;
+        return `https://boardgamegeek.com/xmlapi2/collection?username=${username}&own=1&stats=1&excludesubtype=boardgameexpansion`;
     }
 
     private buildUserUrl(username: string) {
-        return `https://api.geekdo.com/xmlapi2/user?name=${username}`;
+        return `https://boardgamegeek.com/xmlapi2/user?name=${username}`;
     }
 
     // --- Core Network Logic with Proxy Fallback ---
@@ -317,8 +324,15 @@ class BggGameService {
             console.log(`[DEBUG] BggGameService: Attempting fetch via ${proxiedUrl}`);
 
             try {
-                // IMPORTANT: credentials: 'omit' prevents BGG 401 Unauthorized errors
-                const res = await this.getFetch()(proxiedUrl, { credentials: 'omit' });
+                // IMPORTANT:
+                // 1. credentials: 'omit' prevents BGG 401 Unauthorized errors
+                // 2. User-Agent: Mandatory for BGG API to avoid blocking
+                const res = await this.getFetch()(proxiedUrl, {
+                    credentials: 'omit',
+                    headers: {
+                        'User-Agent': 'BoardGameMenu/1.0 (contact: github.com/ekayaprod)'
+                    }
+                });
 
                 console.log(`[DEBUG] BggGameService: Response status: ${res.status}`);
 

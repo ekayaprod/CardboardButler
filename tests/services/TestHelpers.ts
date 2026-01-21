@@ -4,7 +4,7 @@ import BggGameService from "../../src/services/BggGameService";
 import { readFileSync } from "fs";
 import { alchemists, alchemistsTheKing } from "./model/TestGames";
 
-const bggUrl = `https://api.geekdo.com/xmlapi2/collection?username=Warium&own=1&stats=1&excludesubtype=boardgameexpansion`;
+const bggUrl = `https://boardgamegeek.com/xmlapi2/collection?username=Warium&own=1&stats=1&excludesubtype=boardgameexpansion`;
 const expectedUrl = `https://corsproxy.io/?url=${encodeURIComponent(bggUrl)}`;
 
 let smallCollectionCache: GameInfo[] = undefined;

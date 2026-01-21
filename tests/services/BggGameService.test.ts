@@ -3,7 +3,7 @@ import * as fetchMock from "fetch-mock";
 import { readFileSync } from "fs";
 import { getLargeCollection } from "./TestHelpers";
 
-const bggCollectionUrl = `https://api.geekdo.com/xmlapi2/collection?username=Warium&own=1&stats=1&excludesubtype=boardgameexpansion`;
+const bggCollectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=Warium&own=1&stats=1&excludesubtype=boardgameexpansion`;
 const getProxiedUrl = (url: string) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
 const expectedUrl = getProxiedUrl(bggCollectionUrl);
 
@@ -150,9 +150,9 @@ describe("BggGameService", () => {
     });
 
     describe("Get Userinfo", () => {
-        const validUserBggUrl = `https://api.geekdo.com/xmlapi2/user?name=Warium`;
+        const validUserBggUrl = `https://boardgamegeek.com/xmlapi2/user?name=Warium`;
         const validUserUrl = getProxiedUrl(validUserBggUrl);
-        const invalidUserBggUrl = `https://api.geekdo.com/xmlapi2/user?name=asdfasdfasdfasdfasdfasdf`;
+        const invalidUserBggUrl = `https://boardgamegeek.com/xmlapi2/user?name=asdfasdfasdfasdfasdfasdf`;
         const invalidUserUrl = getProxiedUrl(invalidUserBggUrl);
 
         const validUserXml = readFileSync("tests/services/testxml/WariumUserResult.xml", "utf8");
@@ -251,10 +251,10 @@ describe("BggGameService", () => {
 
 
     describe("Get Multiple Games", () => {
-        const expectedUrlSingleBgg = `https://api.geekdo.com/xmlapi2/thing?id=68448&stats=1`;
+        const expectedUrlSingleBgg = `https://boardgamegeek.com/xmlapi2/thing?id=68448&stats=1`;
         const expectedUrlSingle = getProxiedUrl(expectedUrlSingleBgg);
 
-        const expectedUrlBgg = `https://api.geekdo.com/xmlapi2/thing?id=68448,161970&stats=1`;
+        const expectedUrlBgg = `https://boardgamegeek.com/xmlapi2/thing?id=68448,161970&stats=1`;
         const expectedUrl = getProxiedUrl(expectedUrlBgg);
 
         const twoGamesXml = readFileSync("tests/services/testxml/TwoGameResult.xml", "utf8");
@@ -295,7 +295,7 @@ describe("BggGameService", () => {
             fetch.reset();
         });
         it("Can get a users plays", async () => {
-            const expectedUrlBgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium`;
+            const expectedUrlBgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium`;
             const expectedUrl = getProxiedUrl(expectedUrlBgg);
             const wariumPlays = readFileSync("tests/services/testxml/WariumPlays100.xml", "utf8");
             fetch.mock(expectedUrl, 200, {
@@ -313,10 +313,10 @@ describe("BggGameService", () => {
         });
 
         it("Request multiple pages if pagenation is needed.", async () => {
-            const expectedUrlBgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium`;
-            const expectedUrl2Bgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium&page=2`;
-            const expectedUrl3Bgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium&page=3`;
-            const expectedUrl4Bgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium&page=4`;
+            const expectedUrlBgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium`;
+            const expectedUrl2Bgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium&page=2`;
+            const expectedUrl3Bgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium&page=3`;
+            const expectedUrl4Bgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium&page=4`;
 
             const expectedUrl = getProxiedUrl(expectedUrlBgg);
             const expectedUrl2 = getProxiedUrl(expectedUrl2Bgg);
@@ -360,7 +360,7 @@ describe("BggGameService", () => {
         });
 
         it("can load play info", async () => {
-            const expectedUrlBgg = `https://api.geekdo.com/xmlapi2/plays?username=Warium`;
+            const expectedUrlBgg = `https://boardgamegeek.com/xmlapi2/plays?username=Warium`;
             const expectedUrl = getProxiedUrl(expectedUrlBgg);
             const wariumPlays = readFileSync("tests/services/testxml/WariumPlays100.xml", "utf8");
             fetch.mock(expectedUrl, 200, {
@@ -382,7 +382,7 @@ describe("BggGameService", () => {
         });
 
         it("gives empty list back when no plays", async () => {
-            const expectedUrlBgg = `https://api.geekdo.com/xmlapi2/plays?username=Cyndaq`;
+            const expectedUrlBgg = `https://boardgamegeek.com/xmlapi2/plays?username=Cyndaq`;
             const expectedUrl = getProxiedUrl(expectedUrlBgg);
             const noPlays = readFileSync("tests/services/testxml/NoPlays.xml", "utf8");
             fetch.mock(expectedUrl, 200, {
