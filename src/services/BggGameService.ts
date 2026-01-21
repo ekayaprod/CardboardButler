@@ -68,8 +68,10 @@ class BggGameService {
      * @param username the username to get information for
      */
     async getUserInfo(username: string): Promise<UserInfo> {
+        console.log(`[DEBUG] BggGameService: getUserInfo called for ${username}`);
         const xml = await this.fetUserInfoXml(username);
         if (typeof xml !== "string") {
+            console.error(`[DEBUG] BggGameService: getUserInfo failed for ${username}`, xml);
             return {
                 isValid: "unknown",
                 error: xml.error
@@ -294,11 +296,14 @@ class BggGameService {
 
     private async fethXml(url: string) {
         const tryFetch = async (urlToFetch: string) => {
+            console.log(`[DEBUG] BggGameService: Attempting fetch: ${urlToFetch}`);
             return this.getFetch()(urlToFetch).then(async (res) => {
+                console.log(`[DEBUG] BggGameService: Response status for ${urlToFetch}: ${res.status}`);
                 if (res.status === 200) {
                     return res.text();
                 }
                 if (res.status === 429) {
+                    console.warn(`[DEBUG] BggGameService: 429 Rate Limit Hit for ${urlToFetch}`);
                     return { retryLater: true, backoff: true };
                 }
                 else {
@@ -310,10 +315,12 @@ class BggGameService {
         try {
             return await tryFetch(url);
         } catch (e) {
+            console.warn(`[DEBUG] BggGameService: Direct fetch failed for ${url}, trying proxy. Error:`, e);
             const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
             try {
                 return await tryFetch(proxyUrl);
             } catch (proxyError) {
+                console.error(`[DEBUG] BggGameService: Proxy fetch failed for ${proxyUrl}`, proxyError);
                 return { retryLater: true, error: proxyError };
             }
         }
@@ -323,11 +330,14 @@ class BggGameService {
     private async fetUserInfoXml(username: string) {
         const url = this.buildUserUrl(username);
         const tryFetch = async (urlToFetch: string) => {
+            console.log(`[DEBUG] BggGameService: UserInfo fetch: ${urlToFetch}`);
             return this.getFetch()(urlToFetch).then(async (res) => {
+                console.log(`[DEBUG] BggGameService: UserInfo Response status for ${urlToFetch}: ${res.status}`);
                 if (res.status === 200 || res.status === 202) {
                     return await res.text();
                 }
                 if (res.status === 429) {
+                    console.warn(`[DEBUG] BggGameService: UserInfo 429 Rate Limit`);
                     return { error: "backoff" };
                 }
                 throw new Error(`Status ${res.status}`);
@@ -337,10 +347,12 @@ class BggGameService {
         try {
             return await tryFetch(url);
         } catch (e) {
+            console.warn(`[DEBUG] BggGameService: Direct UserInfo fetch failed for ${url}, trying proxy. Error:`, e);
             const proxyUrl = "https://corsproxy.io/?url=" + encodeURIComponent(url);
             try {
                 return await tryFetch(proxyUrl);
             } catch (proxyError) {
+                console.error(`[DEBUG] BggGameService: Proxy UserInfo fetch failed for ${proxyUrl}`, proxyError);
                 return { error: proxyError };
             }
         }
