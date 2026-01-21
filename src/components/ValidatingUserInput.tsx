@@ -26,6 +26,8 @@ export class SelectUserInput extends React.PureComponent<SelectUserInputProps> {
     }
 
     onInputChange(value: string, index: number) {
+        // [DEBUG] Log input change
+        console.log(`[DEBUG] SelectUserInput: Input changed at index ${index} to value: '${value}'`);
         if (this.props.onNameChange) {
             const bggNames = this.props.bggNames || [];
             const clone = [...bggNames];
@@ -57,11 +59,15 @@ export class SelectUserInput extends React.PureComponent<SelectUserInputProps> {
     }
 
     onUseClick() {
+        // [DEBUG] Log button click
+        console.log("[DEBUG] SelectUserInput: 'Use' button clicked. Current names:", this.props.bggNames);
         const { onNameSelect } = this.props;
         if (onNameSelect) {
             const names = this.props.bggNames;
             const trimmedNames = names.map((name) => name.trim());
             onNameSelect(trimmedNames);
+        } else {
+            console.warn("[DEBUG] SelectUserInput: onNameSelect prop is missing!");
         }
     }
 
@@ -72,6 +78,18 @@ export class SelectUserInput extends React.PureComponent<SelectUserInputProps> {
         const hasEnoughNames = namesToShow.length > 0 && namesToShow[0] !== "";
         const forwardButtonText = `Can you help ${namesToShow.length === 1 ? "me" : "us"} find a game to play?`;
         const canUseNames = hasEnoughNames && namesToShow.every((name) => validNames.indexOf(name) > -1);
+
+        // [DEBUG] Log render state to understand disabled button state
+        console.log("[DEBUG] SelectUserInput Render:", {
+            namesToShow,
+            validNames,
+            invalidNames,
+            loadingNames,
+            hasEnoughNames,
+            canUseNames,
+            buttonDisabled: !canUseNames
+        });
+
         return (
             <div >
                 {
@@ -177,6 +195,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
         const { validNames, invalidNames, loadingNames } = this.state;
         const { userValidator } = this.props;
         if (!userValidator) {
+            console.warn("[DEBUG] ValidatingUserInput: No userValidator prop provided");
             return false;
         }
         return !(validNames.indexOf(name) > -1)
@@ -189,6 +208,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
     }
 
     private setNameLoading(name: string, loading: boolean) {
+        console.log(`[DEBUG] ValidatingUserInput: setNameLoading name=${name} loading=${loading}`);
         if (loading) {
             this.setState({
                 loadingNames: [...this.state.loadingNames, name]
@@ -201,6 +221,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
     }
 
     private setNameValidity(name: string, isValid: boolean) {
+        console.log(`[DEBUG] ValidatingUserInput: setNameValidity name=${name} isValid=${isValid}`);
         if (isValid) {
             this.setState({
                 validNames: [...this.state.validNames, name]
@@ -215,21 +236,28 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
     private onNamesChange(names: string[]) {
         const { doesNameNeedValidation, isNameShown, setNameValidity, setNameLoading } = this;
         const { userValidator } = this.props;
+        
+        console.log("[DEBUG] ValidatingUserInput: onNamesChange called with:", names);
+
         this.setState({
             shownNames: names,
         });
         const namesToValidate = names.filter(doesNameNeedValidation);
+        console.log("[DEBUG] ValidatingUserInput: Names requiring validation:", namesToValidate);
+
         namesToValidate.forEach((name) => {
             setTimeout(async () => {
                 // things might have changed, so check again if the name is still shown
                 if (isNameShown(name) && doesNameNeedValidation(name)) {
+                    console.log(`[DEBUG] ValidatingUserInput: Starting validation for '${name}'`);
                     setNameLoading(name, true);
                     try {
                         const isValid = await userValidator(name);
+                        console.log(`[DEBUG] ValidatingUserInput: Validator returned ${isValid} for '${name}'`);
                         setNameValidity(name, isValid);
                     } catch (e) {
                         // eslint-disable-next-line no-console
-                        console.error("Error validating user:", e);
+                        console.error("[DEBUG] ValidatingUserInput: Error validating user:", e);
                         setNameValidity(name, false);
                     }
                     setNameLoading(name, false);
