@@ -188,18 +188,20 @@ export class SuggestedPlayersSorter implements Sorter {
 
 export class UserRatingSorter implements Sorter {
 
-    constructor() {
-        this.userRatingSorter = this.userRatingSorter.bind(this);
-    }
-
     sort(collection: GameInfoPlus[]): GameInfoPlus[] {
-        return collection.sort(this.userRatingSorter);
-    }
+        const ratings = new Map<number, number>();
+        collection.forEach((game) => {
+            const rating = this.getAverageUserRating(game);
+            if (rating !== undefined) {
+                ratings.set(game.id, rating);
+            }
+        });
 
-    private userRatingSorter(a: GameInfo, b: GameInfo): number {
-        const aRating = this.getAverageUserRating(a);
-        const bRating = this.getAverageUserRating(b);
-        return (bRating || 0) - (aRating || 0);
+        return collection.sort((a, b) => {
+            const aRating = ratings.get(a.id);
+            const bRating = ratings.get(b.id);
+            return (bRating || 0) - (aRating || 0);
+        });
     }
 
     private getAverageUserRating(a: GameInfo) {
