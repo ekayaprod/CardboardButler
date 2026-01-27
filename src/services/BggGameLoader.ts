@@ -261,19 +261,24 @@ export default class BggGameLoader {
 
     private getGamesWithPlayInfo(currentNames: string[], games: GameInfo[], playsMap: PlaysMap) {
         if (Object.keys(playsMap).length > 0) {
-            const allGamesWithPlays = games.map((game) => {
-                const allPlaysOfGame: PlayInfo[] = [];
-                currentNames.forEach((name) => {
-                    const usersPlays = playsMap[name];
-                    if (usersPlays) {
-                        for (let i = 0; i < usersPlays.length; i++) {
-                            const usersPlay = usersPlays[i];
-                            if (usersPlay.gameId === game.id) {
-                                allPlaysOfGame.push(Object.assign({}, usersPlay, { playedBy: name }));
-                            }
+            const playsByGameId: { [gameId: number]: PlayInfo[] } = {};
+
+            currentNames.forEach((name) => {
+                const usersPlays = playsMap[name];
+                if (usersPlays) {
+                    for (let i = 0; i < usersPlays.length; i++) {
+                        const usersPlay = usersPlays[i];
+                        const gameId = usersPlay.gameId;
+                        if (!playsByGameId[gameId]) {
+                            playsByGameId[gameId] = [];
                         }
+                        playsByGameId[gameId].push(Object.assign({}, usersPlay, { playedBy: name }));
                     }
-                });
+                }
+            });
+
+            const allGamesWithPlays = games.map((game) => {
+                const allPlaysOfGame = playsByGameId[game.id] || [];
 
                 const lastPlayInMinutes = allPlaysOfGame.reduce((prev, cur) => Math.max(prev, cur.date.getTime()), 0);
                 const timePlayedInMinutes = allPlaysOfGame.reduce((prev, cur) => prev + (cur.length || 0), 0);
