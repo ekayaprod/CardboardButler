@@ -21,6 +21,9 @@ class BggGameService {
         (url: string) => `https://thingproxy.freeboard.io/fetch/${url}`
     ];
 
+    private userCollectionCache: Map<string, { timestamp: number, data: GameInfo[] }> = new Map();
+    private readonly CACHE_TTL = 5 * 60 * 1000;
+
     constructor(fetchService?: FetchService) {
         this.fetchService = fetchService || fetch;
     }
@@ -29,6 +32,16 @@ class BggGameService {
      * Gets a collection of the owned games from a user.
      */
     async getUserCollection(username: string): Promise<BggRetryResult | GameInfo[]> {
+        const now = Date.now();
+        const entry = this.userCollectionCache.get(username);
+        if (entry) {
+            if (now - entry.timestamp < this.CACHE_TTL) {
+                return entry.data;
+            } else {
+                this.userCollectionCache.delete(username);
+            }
+        }
+
         const xmlResult = await this.fetchCollectionXml(username);
         // Handle explicit fallback error object
         if (typeof xmlResult !== "string") {
@@ -48,7 +61,7 @@ class BggGameService {
         const allItems: convert.Element[] = jsObj.elements[0].elements;
         if (!allItems) return [];
 
-        return allItems.map((item: convert.Element) => {
+        const result = allItems.map((item: convert.Element) => {
             const elements = item.elements;
             const valueOf = (attributeName: string) => this.getTagValue(elements, attributeName);
             const playStats = this.getPlayStatsFromCollection(elements);
@@ -67,6 +80,9 @@ class BggGameService {
             }, playStats);
             return game;
         });
+
+        this.userCollectionCache.set(username, { timestamp: Date.now(), data: result });
+        return result;
     }
 
     async getUserInfo(username: string): Promise<UserInfo> {

@@ -12,7 +12,11 @@ describe("BggGameService", () => {
 
     afterEach(fetch.restore);
 
-    const service = new BggGameService(fetch);
+    let service: BggGameService;
+
+    beforeEach(() => {
+        service = new BggGameService(fetch);
+    });
 
     describe("Initialization", () => {
         it("Can be constructoed with a fetch service", () => {
