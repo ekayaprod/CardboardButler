@@ -177,6 +177,8 @@ const initialState: State = {
 
 export default class ValidatingUserInput extends React.Component<Props, State> {
 
+    private validationTimeout: any = null;
+
     constructor(props: Props) {
         super(props);
         this.onNamesChange = this.onNamesChange.bind(this);
@@ -185,6 +187,12 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
         this.isNameShown = this.isNameShown.bind(this);
         this.setNameLoading = this.setNameLoading.bind(this);
         this.setNameValidity = this.setNameValidity.bind(this);
+    }
+
+    componentWillUnmount() {
+        if (this.validationTimeout) {
+            clearTimeout(this.validationTimeout);
+        }
     }
 
 
@@ -234,7 +242,7 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
     }
 
     private onNamesChange(names: string[]) {
-        const { doesNameNeedValidation, isNameShown, setNameValidity, setNameLoading } = this;
+        const { doesNameNeedValidation, setNameValidity, setNameLoading } = this;
         const { userValidator } = this.props;
         
         console.log("[DEBUG] ValidatingUserInput: onNamesChange called with:", names);
@@ -242,13 +250,17 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
         this.setState({
             shownNames: names,
         });
-        const namesToValidate = names.filter(doesNameNeedValidation);
-        console.log("[DEBUG] ValidatingUserInput: Names requiring validation:", namesToValidate);
 
-        namesToValidate.forEach((name) => {
-            setTimeout(async () => {
-                // things might have changed, so check again if the name is still shown
-                if (isNameShown(name) && doesNameNeedValidation(name)) {
+        if (this.validationTimeout) {
+            clearTimeout(this.validationTimeout);
+        }
+
+        this.validationTimeout = setTimeout(() => {
+            const namesToValidate = names.filter(doesNameNeedValidation);
+            console.log("[DEBUG] ValidatingUserInput: Names requiring validation:", namesToValidate);
+
+            namesToValidate.forEach(async (name) => {
+                if (doesNameNeedValidation(name)) {
                     console.log(`[DEBUG] ValidatingUserInput: Starting validation for '${name}'`);
                     setNameLoading(name, true);
                     try {
@@ -262,9 +274,8 @@ export default class ValidatingUserInput extends React.Component<Props, State> {
                     }
                     setNameLoading(name, false);
                 }
-                // wait a little with calling validator, to make sure people are done typing.
-            }, 300);
-        });
+            });
+        }, 300);
     }
 
     render() {
