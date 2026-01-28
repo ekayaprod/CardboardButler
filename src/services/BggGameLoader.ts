@@ -168,10 +168,16 @@ export default class BggGameLoader {
             isLoading: false,
             gameinfo: game
         }));
+        const gameMap = new Map<number, LoadingInfo>();
+        loadingInfo.forEach(li => {
+            if (li.type === "game") {
+                gameMap.set(li.gameinfo.id, li);
+            }
+        });
         this.loadingInfo = [...loadingInfo, ...this.loadingInfo];
         const chunks = this.chunk(allUnknownGames, 50);
         return await Promise.all(chunks.map((unknownGames) => {
-            return this.loadGamesWithRetry(unknownGames).then((extraInfos) => {
+            return this.loadGamesWithRetry(unknownGames, gameMap).then((extraInfos) => {
                 extraInfos.forEach((extraInfo, i) => {
                     this.extraInfoMap[unknownGames[i].id] = extraInfo;
                 });
@@ -371,19 +377,20 @@ export default class BggGameLoader {
         }
     }
 
-    private async loadGamesWithRetry(games: GameInfo[]) {
+    private async loadGamesWithRetry(games: GameInfo[], gameMap: Map<number, LoadingInfo>) {
         const ids = games.map((g) => g.id);
         ids.forEach((id) => {
-            const loadingIndex = this.loadingInfo.findIndex((li) => li.type === "game" && li.gameinfo.id === id);
-            this.loadingInfo[loadingIndex].isLoading = true;
-            this.loadingInfo[loadingIndex].retryInfo = undefined;
+            const loadingInfo = gameMap.get(id);
+            if (loadingInfo) {
+                loadingInfo.isLoading = true;
+                loadingInfo.retryInfo = undefined;
+            }
         });
         this.informLoadingHandlers();
         const extendeds = await this.service.getGamesInfo(ids);
         if (!("retryLater" in extendeds)) {
-            ids.forEach((id) => {
-                this.loadingInfo = this.loadingInfo.filter((g) => g.type !== "game" || g.gameinfo.id !== id);
-            });
+            const idSet = new Set(ids);
+            this.loadingInfo = this.loadingInfo.filter((g) => g.type !== "game" || !idSet.has(g.gameinfo.id));
             this.informLoadingHandlers();
             return extendeds;
         } else {
@@ -392,12 +399,14 @@ export default class BggGameLoader {
                 this.concurrentRequestLimit = Math.max(this.concurrentRequestLimit - 1, 1);
             }
             ids.forEach((id) => {
-                const loadingIndex = this.loadingInfo.findIndex((li) => li.type === "game" && li.gameinfo.id === id);
-                this.loadingInfo[loadingIndex].retryInfo = extendeds;
+                const loadingInfo = gameMap.get(id);
+                if (loadingInfo) {
+                    loadingInfo.retryInfo = extendeds;
+                }
             });
             this.informLoadingHandlers();
             return new Promise<ExtendedGameInfo[]>(resolver => {
-                setTimeout(() => resolver(this.loadGamesWithRetry(games)), retryTime);
+                setTimeout(() => resolver(this.loadGamesWithRetry(games, gameMap)), retryTime);
             });
         }
     }
