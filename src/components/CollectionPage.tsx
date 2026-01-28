@@ -641,6 +641,8 @@ interface State {
 }
 
 export default class CollectionPage extends React.Component<Props, State> {
+    private filterer = new GamesFilterAndSorter();
+
     constructor(props: Props) {
         super(props);
         this.onFilterChange = this.onFilterChange.bind(this);
@@ -663,8 +665,7 @@ export default class CollectionPage extends React.Component<Props, State> {
     render() {
         const { games = [], currentUsers = [] } = this.props;
         const { viewType } = this.state;
-        const filterer = new GamesFilterAndSorter();
-        const filteredGames = filterer.filterAndSort(games, this.state.filterOptions);
+        const filteredGames = this.filterer.filterAndSort(games, this.state.filterOptions);
         const noGames = filteredGames.length === 0;
         return (
             <div data-testid="CollectionPage">
